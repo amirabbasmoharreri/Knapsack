@@ -268,27 +268,40 @@ def showWeightValue(lists):
 ##################### starting app from here  ######################
 
 
+objectsweight=[44,38,71,98,90,74,76,4,6,4,55,4,90,78,71,22,89,93,79,700]
+objectsvalue=[806,66,817,923,635,873,582,978,375,385,979,374,475,94,874,226,217,656,438,1000000]
 list_objects = []
 bestcrom = []
 bestfitness = []
 bestweight = []
-print("enter number of cities 'minimum 4' ")
-while True:
-    num = int(input())
-    if num >= 4:
-        break
-    else:
-        print("try again")
 
-# intializing Coordinates of cities with random
+print("Do you want calculate with random (1) city or with list of city (2)? ")
+w = int(input())
+if w == 1:
+    print("enter number of cities 'minimum 4' ")
+    while True:
+        num = int(input())
+        if num >= 4:
+            break
+        else:
+            print("try again")
 
-start = time.time()
+    # intializing Coordinates of cities with random
 
-for j in range(num):
-    weight = randint(0, 5)
-    value = randint(0, 200)
-    object1 = Object(weight, value)
-    list_objects.append(object1)
+    start = time.time()
+
+    for j in range(num):
+        weight = randint(0, 99)
+        value = randint(0, 999)
+        object1 = Object(weight, value)
+        list_objects.append(object1)
+else:
+
+    start = time.time()
+    num = 20
+    for i in range(0,len(objectsweight)):
+        object1=Object(objectsweight[i],objectsvalue[i])
+        list_objects.append(object1)
 
 print("input the population")
 populationSize = int(input())
@@ -316,7 +329,7 @@ allPopulation = fitnessFunction(allPopulation, list_objects)
 bestfitness.append(fetchBestCrom(allPopulation, maxWeight).value)
 bestweight.append(fetchBestCrom(allPopulation, maxWeight).weight)
 evaluate = abs(fit1 - fit2)
-while j < 200:
+while j < 500:
     if evaluate < 1:
         j += 1
     else:
