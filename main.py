@@ -4,6 +4,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
+import random
 
 
 class Coromozom():
@@ -28,7 +29,7 @@ class Object():
         self.value = value
 
 
-def population(n ,populationSize):
+def population(n, populationSize):
     p = []
     counterpop = 0
     while counterpop < populationSize:
@@ -42,7 +43,7 @@ def population(n ,populationSize):
         crom.array = history
         p.append(crom)
         counterpop += 1
-        print(history)
+
     return p
 
 
@@ -67,7 +68,7 @@ def fetchBestCrom(lists, maxWeight):
 
 def crossover(n):
     ra = []
-    for i in range(2):
+    for i in range(1):
         a = randint(0, n - 1)
         if not (a in ra):
             ra.append(a)
@@ -90,7 +91,7 @@ def parentSelection(allpop, rate):
     while i < 2:
         fmparent = []
         counter = 0
-        while counter < (int(crosssize/2)):
+        while counter <= (int(crosssize / 2)):
             num = randint(0, popsize - 1)
             if not (num in history):
                 history.append(num)
@@ -101,7 +102,7 @@ def parentSelection(allpop, rate):
     j = 0
     while j < 2:
         c = []
-        for i in range(0, (int(crosssize/2))):
+        for i in range(0, (int(crosssize / 2))):
             c.append(allpop[parents[j][i]])
         p.append(c)
         j += 1
@@ -122,7 +123,7 @@ def surviveSelection(allpop, n):
         if len(best) == popsize:
             break
 
-    while len(best) < num:
+    while len(best) <= num:
         rand = randint(0, len(allpop) - 1)
         if not (allpop[rand] in best):
             best.append(allpop[rand])
@@ -135,7 +136,6 @@ def mutation(childs, rate):
     popsize = len(childs)
     lens = len(childs[0].array)
     randcrom = []
-    randindex = []
     pecent = (rate / 100)
     musize = int(popsize * pecent)
     # random coromozoms for mutation
@@ -144,10 +144,7 @@ def mutation(childs, rate):
 
     for i in randcrom:
         a = randint(0, lens - 1)
-        if childs[i].array[a] == 0:
-            childs[i].array[a] = 1
-        else:
-            childs[i].array[a] = 0
+        childs[i].array[a] = 1 - childs[i].array[a]
 
     return childs
 
@@ -170,60 +167,90 @@ def computingTotalValue(croms, objects):
     return croms
 
 
-def recombination(allpop, parent):
+def recombination(allpop, parent , mode):
     lens = len(parent[0][0].array)
     recomsize = len(parent[0])
     childs = []
-    for j in range(0, recomsize):
-        cross = crossover(lens)
-        child1 = []
-        child2 = []
-        for i in range(0, lens):
-            child1.append(-1)
-            child2.append(-1)
-        p1 = parent[0][j].array
-        p2 = parent[1][j].array
 
-        # creating middle of cromozom childs
+    if mode == 1:
+        for j in range(0, recomsize):
+            cross = randint(0, lens - 1)
+            p1 = parent[0][j].array
+            p2 = parent[1][j].array
+            child11 = p2[:cross] + p1[cross:]
+            child22 = p1[:cross] + p2[cross:]
+        crom1 = Coromozom()
+        crom2 = Coromozom()
+        crom1.array = child11
+        crom2.array = child22
+        childs.append(crom1)
+        childs.append(crom2)
+    elif mode == 2:
+        for j in range(0, recomsize):
+            cross = crossover(lens)
+            child1 = []
+            child2 = []
+            for i in range(0, lens):
+                child1.append(-1)
+                child2.append(-1)
+            p1 = parent[0][j].array
+            p2 = parent[1][j].array
 
-        for i in range(cross[0], cross[1] + 1):
-            child1[i] = p1[i]
-            child2[i] = p2[i]
+            # creating middle of cromozom childs
 
-        # creating next to the childs cromozom
+            for i in range(cross[0], cross[1] + 1):
+                child1[i] = p1[i]
+                child2[i] = p2[i]
 
-        # creating left-side
-        for i in range(0, cross[0]):
-            if not p2[i] in child1:
-                child1[i] = p2[i]
-            if not p1[i] in child2:
-                child2[i] = p1[i]
+            # print("central recombination")
+            # print(child1)
+            # print(child2)
 
-        # creating right-side
-        for i in range(cross[1] + 1, lens):
-            if not p2[i] in child1:
-                child1[i] = p2[i]
-            if not p1[i] in child2:
-                child2[i] = p1[i]
+            # creating next to the childs cromozom
 
-        # completing childs
-        for i in range(0, lens):
+            # creating left-side
+            for i in range(0, cross[0]):
+                if not p2[i] in child1:
+                    child1[i] = p2[i]
+                if not p1[i] in child2:
+                    child2[i] = p1[i]
 
-            index1 = [j for j in range(len(child2)) if child1[j] == -1]
-            index2 = [j for j in range(len(child2)) if child2[j] == -1]
+            # print("left recombination")
+            # print(child1)
+            # print(child2)
 
-            if not p2[i] in child1:
-                if not (len(index1) == 0):
-                    child1[index1[0]] = p2[i]
-            if not p1[i] in child2:
-                if not (len(index2) == 0):
-                    child2[index2[0]] = p1[i]
+            # creating right-side
+            for i in range(cross[1] + 1, lens):
+                if not p2[i] in child1:
+                    child1[i] = p2[i]
+                if not p1[i] in child2:
+                    child2[i] = p1[i]
+
+            # print("right recombination")
+            # print(child1)
+            # print(child2)
+
+            # completing childs
+            for i in range(0, lens):
+
+                index1 = [j for j in range(len(child2)) if child1[j] == -1]
+                index2 = [j for j in range(len(child2)) if child2[j] == -1]
+                # print(index1)
+                # print(index2)
+                if not p2[i] in child1:
+                    if not (len(index1) == 0):
+                        child1[index1[0]] = p2[i]
+                if not p1[i] in child2:
+                    if not (len(index2) == 0):
+                        child2[index2[0]] = p1[i]
         crom1 = Coromozom()
         crom2 = Coromozom()
         crom1.array = child1
         crom2.array = child2
         childs.append(crom1)
         childs.append(crom2)
+
+
 
     return childs
 
@@ -242,7 +269,8 @@ def showfitness(lists):
     plt.show()
     return
 
-def showWeight(lists , maxWeight):
+
+def showWeight(lists, maxWeight):
     plt.plot(lists)
     plt.title("Weight = " + str(lists[len(lists) - 1]) + " Max Weight = " + str(maxWeight))
     plt.ylabel("Weight")
@@ -250,26 +278,12 @@ def showWeight(lists , maxWeight):
     plt.show()
     return
 
-def showWeightValue(lists):
-    x=[]
-    y=[]
-    for i in range(0,len(lists)):
-        x.append(lists[i].weight)
-        y.append(lists[i].value)
-
-    plt.plot(x,y)
-    plt.title("Weight = " + str(lists[len(lists) - 1].weight) + " Value = " + str(lists[len(lists) - 1].value))
-    plt.ylabel("Value")
-    plt.xlabel("Weight")
-    plt.show()
-    return
-
 
 ##################### starting app from here  ######################
 
 
-objectsweight=[44,38,71,98,90,74,76,4,6,4,55,4,90,78,71,22,89,93,79,700]
-objectsvalue=[806,66,817,923,635,873,582,978,375,385,979,374,475,94,874,226,217,656,438,1000000]
+objectsweight = [44,  38, 71, 98, 90, 74, 76, 4, 6, 4, 55, 4, 90, 78, 71, 22, 89, 93, 79,700]
+objectsvalue = [806,  66, 817, 923, 635, 873, 582, 978, 375, 385, 979, 374, 475, 94, 874, 226, 217, 656, 438,100000000]
 list_objects = []
 bestcrom = []
 bestfitness = []
@@ -299,8 +313,8 @@ else:
 
     start = time.time()
     num = 20
-    for i in range(0,len(objectsweight)):
-        object1=Object(objectsweight[i],objectsvalue[i])
+    for i in range(0, len(objectsweight)):
+        object1 = Object(objectsweight[i], objectsvalue[i])
         list_objects.append(object1)
 
 print("input the population")
@@ -324,7 +338,7 @@ i = 0
 j = 0
 fit1 = 100
 fit2 = 200
-allPopulation = population(num , populationSize)
+allPopulation = population(num, populationSize)
 allPopulation = fitnessFunction(allPopulation, list_objects)
 bestfitness.append(fetchBestCrom(allPopulation, maxWeight).value)
 bestweight.append(fetchBestCrom(allPopulation, maxWeight).weight)
@@ -336,23 +350,21 @@ while j < 500:
         j = 0
     print("Generation " + str(i) + "  Fitness: " + str(fit2) + "  Count fitness not change: " + str(j))
     parent = parentSelection(allPopulation, crossRate)
-    childs = recombination(allPopulation, parent)
+    childs = recombination(allPopulation, parent,2)
     childs = mutation(childs, mutationRate)
     childs = fitnessFunction(childs, list_objects)
     allPopulation = addchildstopopulation(allPopulation, childs)
     allPopulation = surviveSelection(allPopulation, populationSize)
     bestcrom.append(fetchBestCrom(allPopulation, maxWeight))
-    bestfitness.append(bestcrom[len(bestcrom)-1].value)
-    bestweight.append(bestcrom[len(bestcrom)-1].weight)
+    bestfitness.append(bestcrom[len(bestcrom) - 1].value)
+    bestweight.append(bestcrom[len(bestcrom) - 1].weight)
     fit2 = bestfitness[len(bestfitness) - 1]
     if len(bestfitness) > 1:
         fit1 = bestfitness[len(bestfitness) - 2]
     evaluate = abs(fit1 - fit2)
     i += 1
-#bestcrom.sort(key=operator.attrgetter('value'), reverse=True)
 showfitness(bestfitness)
-showWeight(bestweight,maxWeight)
-showWeightValue(bestcrom)
+showWeight(bestweight, maxWeight)
 print("Fitness: " + str(fit2))
 end = time.time()
 print("Runtime of the program is " + str(end - start) + " seconds")
